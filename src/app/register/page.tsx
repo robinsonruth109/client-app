@@ -1,7 +1,7 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import clientApi from '@/lib/client-api';
 import { useClientAuthStore } from '@/store/client-auth-store';
 
@@ -14,9 +14,8 @@ function generateCaptcha() {
   return result;
 }
 
-function RegisterForm() {
+export default function RegisterPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { setAuth } = useClientAuthStore();
 
   const [form, setForm] = useState({
@@ -31,26 +30,26 @@ function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // ✅ FIX: get code from URL WITHOUT useSearchParams
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code') || '';
+
+    if (code) {
+      setForm((prev) => ({
+        ...prev,
+        invitationCode: code,
+      }));
+    }
+  }, []);
+
   useEffect(() => {
     setCaptcha(generateCaptcha());
   }, []);
 
-  useEffect(() => {
-    const codeFromUrl = searchParams.get('code') || '';
-    if (codeFromUrl) {
-      setForm((prev) => ({
-        ...prev,
-        invitationCode: codeFromUrl,
-      }));
-    }
-  }, [searchParams]);
-
   const refreshCaptcha = () => {
     setCaptcha(generateCaptcha());
-    setForm((prev) => ({
-      ...prev,
-      code: '',
-    }));
+    setForm((prev) => ({ ...prev, code: '' }));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,7 +71,7 @@ function RegisterForm() {
         return;
       }
 
-      if (form.code.trim().toUpperCase() !== captcha) {
+      if (form.code.toUpperCase() !== captcha) {
         setError('Invalid verification code');
         refreshCaptcha();
         setLoading(false);
@@ -98,101 +97,73 @@ function RegisterForm() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <div className="mb-4 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => router.push('/login')}
-            className="text-2xl text-gray-700"
-          >
-            ←
-          </button>
-          <div />
-        </div>
-
         <form onSubmit={handleRegister} className="space-y-4">
           <input
             name="username"
-            placeholder="6-16 letters or numbers"
+            placeholder="Username"
             value={form.username}
             onChange={handleChange}
-            className="w-full rounded-xl border border-gray-400 px-4 py-4 text-lg outline-none"
+            className="w-full rounded-xl border px-4 py-3"
             required
           />
 
           <input
             name="password"
             type="password"
-            placeholder="6-16 alphanumeric password"
+            placeholder="Password"
             value={form.password}
             onChange={handleChange}
-            className="w-full rounded-xl border border-gray-400 px-4 py-4 text-lg outline-none"
+            className="w-full rounded-xl border px-4 py-3"
             required
           />
 
           <input
             name="confirmPassword"
             type="password"
-            placeholder="Please enter the password again"
+            placeholder="Confirm Password"
             value={form.confirmPassword}
             onChange={handleChange}
-            className="w-full rounded-xl border border-gray-400 px-4 py-4 text-lg outline-none"
+            className="w-full rounded-xl border px-4 py-3"
             required
           />
 
           <input
             name="invitationCode"
-            placeholder="Invitation code (required)"
+            placeholder="Invitation Code"
             value={form.invitationCode}
             onChange={handleChange}
-            className="w-full rounded-xl border border-gray-400 px-4 py-4 text-lg outline-none"
+            className="w-full rounded-xl border px-4 py-3"
             required
           />
 
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <input
               name="code"
-              placeholder="Verification Code"
+              placeholder="Code"
               value={form.code}
               onChange={handleChange}
-              className="flex-1 rounded-xl border border-gray-400 px-4 py-4 text-lg outline-none"
-              required
+              className="flex-1 rounded-xl border px-4 py-3"
             />
-
             <button
               type="button"
               onClick={refreshCaptcha}
-              className="min-w-[110px] rounded-xl border border-gray-400 bg-black px-3 py-4 text-center text-2xl text-pink-500"
-              title="Refresh code"
+              className="px-4 bg-black text-white rounded-xl"
             >
-              {captcha || '----'}
+              {captcha}
             </button>
           </div>
 
-          {error ? <p className="text-sm text-red-500">{error}</p> : null}
+          {error && <p className="text-red-500">{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-[#7a4d4d] py-4 text-xl text-white"
+            className="w-full bg-[#7a4d4d] text-white py-3 rounded-xl"
           >
-            {loading ? 'Registering...' : 'Registration'}
+            {loading ? 'Loading...' : 'Register'}
           </button>
         </form>
       </div>
     </div>
-  );
-}
-
-export default function RegisterPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-gray-100 text-gray-700">
-          Loading...
-        </div>
-      }
-    >
-      <RegisterForm />
-    </Suspense>
   );
 }
