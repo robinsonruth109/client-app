@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import clientApi from '@/lib/client-api';
 import { useClientAuthStore } from '@/store/client-auth-store';
@@ -14,15 +14,10 @@ function generateCaptcha() {
   return result;
 }
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setAuth } = useClientAuthStore();
-
-  const [mounted, setMounted] = useState(false);
-  const [captcha, setCaptcha] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const [form, setForm] = useState({
     username: '',
@@ -32,13 +27,16 @@ export default function RegisterPage() {
     code: '',
   });
 
+  const [captcha, setCaptcha] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
   useEffect(() => {
-    setMounted(true);
     setCaptcha(generateCaptcha());
   }, []);
 
   useEffect(() => {
-    const codeFromUrl = searchParams.get('code');
+    const codeFromUrl = searchParams.get('code') || '';
     if (codeFromUrl) {
       setForm((prev) => ({
         ...prev,
@@ -96,16 +94,6 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
-
-  if (!mounted) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
-        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-          <p className="text-center text-gray-500">Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
@@ -176,11 +164,11 @@ export default function RegisterPage() {
               className="min-w-[110px] rounded-xl border border-gray-400 bg-black px-3 py-4 text-center text-2xl text-pink-500"
               title="Refresh code"
             >
-              {captcha}
+              {captcha || '----'}
             </button>
           </div>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error ? <p className="text-sm text-red-500">{error}</p> : null}
 
           <button
             type="submit"
@@ -192,5 +180,19 @@ export default function RegisterPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-gray-100 text-gray-700">
+          Loading...
+        </div>
+      }
+    >
+      <RegisterForm />
+    </Suspense>
   );
 }
