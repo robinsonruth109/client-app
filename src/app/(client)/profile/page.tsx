@@ -144,7 +144,7 @@ export default function ProfilePage() {
             <img
               src={
                 client?.avatarUrl ||
-                'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=300&auto=format&fit=crop'
+                'https://i.ibb.co.com/mCXWtPf2/profile.png?q=80&w=300&auto=format&fit=crop'
               }
               alt="avatar"
               className="h-16 w-16 rounded-full object-cover"
