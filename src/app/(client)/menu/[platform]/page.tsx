@@ -184,7 +184,8 @@ export default function PlatformPage() {
 
   return (
     <div className="min-h-screen bg-[#f3f3f3] pb-6">
-      <div className="bg-[linear-gradient(90deg,#a94b57_0%,#7f5a61_100%)] px-4 pb-16 pt-3 text-white">
+      {/* top section */}
+      <div className="bg-[linear-gradient(90deg,#a94b57_0%,#7f5a61_100%)] px-4 pb-16 pt-3 text-white md:px-7 md:pb-24">
         <div className="mb-5 flex items-center">
           <button
             type="button"
@@ -193,71 +194,76 @@ export default function PlatformPage() {
           >
             ←
           </button>
-          <h1 className="flex-1 text-center text-[18px] font-semibold leading-none">
+          <h1 className="flex-1 text-center text-[18px] font-semibold leading-none md:text-[20px]">
             {platform}
           </h1>
           <div className="w-5" />
         </div>
 
-        <p className="text-[13px] leading-none text-white">Account Balance:</p>
-        <p className="mt-3 text-[22px] font-medium leading-none text-white">
-          {Number(client?.balance ?? 0).toFixed(4)} USDT
-        </p>
+        <div className="md:mx-auto md:w-full md:max-w-[1180px]">
+          <p className="text-[13px] leading-none text-white md:text-[15px]">
+            Account Balance:
+          </p>
+          <p className="mt-3 text-[22px] font-medium leading-none text-white md:text-[24px]">
+            {Number(client?.balance ?? 0).toFixed(4)} USDT
+          </p>
+        </div>
       </div>
 
-      <div className="-mt-10 px-4">
-        <div className="rounded-[8px] bg-white px-4 py-7 shadow-sm">
-          <div className="grid grid-cols-2 gap-y-8 text-center">
+      {/* content column */}
+      <div className="-mt-10 px-4 md:mx-auto md:w-full md:max-w-[520px] md:px-0">
+        <div className="rounded-[8px] bg-white px-4 py-7 shadow-sm md:px-6 md:py-10">
+          <div className="grid grid-cols-2 gap-y-8 text-center md:gap-y-12">
             <div>
-              <p className="text-[16px] font-medium leading-none text-[#222]">
+              <p className="text-[16px] font-medium leading-none text-[#222] md:text-[18px]">
                 {stats?.todayTimes ?? 0}
               </p>
-              <p className="mt-3 text-[12px] leading-[16px] text-[#9a9aa3]">
+              <p className="mt-3 text-[12px] leading-[16px] text-[#9a9aa3] md:text-[13px]">
                 Today&apos;s Times
               </p>
             </div>
 
             <div>
-              <p className="text-[16px] font-medium leading-none text-[#222]">
+              <p className="text-[16px] font-medium leading-none text-[#222] md:text-[18px]">
                 {stats?.todayCommission ?? 0}USDT
               </p>
-              <p className="mt-3 text-[12px] leading-[16px] text-[#9a9aa3]">
+              <p className="mt-3 text-[12px] leading-[16px] text-[#9a9aa3] md:text-[13px]">
                 Today&apos;s commission
               </p>
             </div>
 
             <div>
-              <p className="text-[16px] font-medium leading-none text-[#222]">
+              <p className="text-[16px] font-medium leading-none text-[#222] md:text-[18px]">
                 {stats?.cashGapBetweenTasks ?? 0}USDT
               </p>
-              <p className="mt-3 text-[12px] leading-[16px] text-[#9a9aa3]">
+              <p className="mt-3 text-[12px] leading-[16px] text-[#9a9aa3] md:text-[13px]">
                 Cash gap between tasks
               </p>
             </div>
 
             <div>
-              <p className="text-[16px] font-medium leading-none text-[#222]">
+              <p className="text-[16px] font-medium leading-none text-[#222] md:text-[18px]">
                 {stats?.yesterdayBuyCommission ?? 0}USDT
               </p>
-              <p className="mt-3 text-[12px] leading-[16px] text-[#9a9aa3]">
+              <p className="mt-3 text-[12px] leading-[16px] text-[#9a9aa3] md:text-[13px]">
                 Yesterday&apos;s buy commission
               </p>
             </div>
 
             <div>
-              <p className="text-[16px] font-medium leading-none text-[#222]">
+              <p className="text-[16px] font-medium leading-none text-[#222] md:text-[18px]">
                 {stats?.yesterdayTeamCommission ?? 0}USDT
               </p>
-              <p className="mt-3 text-[12px] leading-[16px] text-[#9a9aa3]">
+              <p className="mt-3 text-[12px] leading-[16px] text-[#9a9aa3] md:text-[13px]">
                 Yesterday&apos;s team commission
               </p>
             </div>
 
             <div>
-              <p className="text-[16px] font-medium leading-none text-[#222]">
+              <p className="text-[16px] font-medium leading-none text-[#222] md:text-[18px]">
                 {stats?.moneyFrozenInAccounts ?? 0}USDT
               </p>
-              <p className="mt-3 text-[12px] leading-[16px] text-[#9a9aa3]">
+              <p className="mt-3 text-[12px] leading-[16px] text-[#9a9aa3] md:text-[13px]">
                 Money frozen in accounts
               </p>
             </div>
@@ -268,14 +274,18 @@ export default function PlatformPage() {
           type="button"
           onClick={handleGrabOrder}
           disabled={grabbing}
-          className="mt-6 w-full rounded-full bg-[#7a5a61] py-[14px] text-[18px] font-medium text-white"
+          className="mt-6 w-full rounded-full bg-[#7a5a61] py-[14px] text-[18px] font-medium text-white md:py-[18px] md:text-[20px]"
         >
           {grabbing ? 'Grabbing...' : 'Grab the order immediately'}
         </button>
 
-        <div className="mt-7 px-1 text-[12px] leading-8 text-[#555]">
-          <p className="mb-1 text-[13px] leading-none text-[#666]">Hint:</p>
-          <p>1: {commissionText} of the amount of completed transactions earned.</p>
+        <div className="mt-7 px-1 text-[12px] leading-8 text-[#555] md:mt-8 md:text-[14px] md:leading-9">
+          <p className="mb-1 text-[13px] leading-none text-[#666] md:text-[15px]">
+            Hint:
+          </p>
+          <p>
+            1: {commissionText} of the amount of completed transactions earned.
+          </p>
           <p>
             2: The system sends tasks randomly. Complete them as soon as
             possible after matching them, so as to avoid hanging all the time.
@@ -285,7 +295,7 @@ export default function PlatformPage() {
 
       {showOrderPopup && activeOrder ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-md rounded-[18px] bg-white p-4 shadow-xl">
+          <div className="w-full max-w-md rounded-[18px] bg-white p-4 shadow-xl md:max-w-[460px]">
             <div className="max-h-[60vh] space-y-3 overflow-y-auto">
               {activeOrder.items.map((item, index) => (
                 <div
@@ -315,9 +325,11 @@ export default function PlatformPage() {
             </div>
 
             <div className="mt-4 space-y-2 text-[14px] text-[#666]">
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-3">
                 <span>Transaction time</span>
-                <span>{new Date(activeOrder.createdAt).toLocaleString()}</span>
+                <span className="text-right">
+                  {new Date(activeOrder.createdAt).toLocaleString()}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Order amount</span>
@@ -329,9 +341,9 @@ export default function PlatformPage() {
               </div>
             </div>
 
-            <div className="mt-4 flex items-end justify-between">
+            <div className="mt-4 flex items-end justify-between gap-3">
               <span className="text-[15px] text-[#666]">Expected income</span>
-              <span className="text-[22px] font-medium leading-none text-[#f08a2d]">
+              <span className="text-right text-[22px] font-medium leading-none text-[#f08a2d]">
                 {activeOrder.expectedIncome}USDT
               </span>
             </div>
@@ -368,7 +380,7 @@ export default function PlatformPage() {
 
       {warningMessage ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
-          <div className="max-w-sm rounded-[14px] bg-black/80 px-5 py-4 text-center text-white">
+          <div className="w-full max-w-sm rounded-[14px] bg-black/80 px-5 py-4 text-center text-white">
             <p className="text-[16px] leading-6">{warningMessage}</p>
             <button
               type="button"
@@ -383,3 +395,4 @@ export default function PlatformPage() {
     </div>
   );
 }
+

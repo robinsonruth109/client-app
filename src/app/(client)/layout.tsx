@@ -9,11 +9,10 @@ export default function ClientLayout({
   return (
     <ClientProtected>
       <div className="min-h-screen bg-[#f3f3f3] pb-20">
-        <div className="mx-auto min-h-screen max-w-md bg-[#f3f3f3]">
-          {children}
-        </div>
+        <div className="min-h-screen w-full bg-[#f3f3f3]">{children}</div>
         <ClientBottomNav />
       </div>
     </ClientProtected>
   );
 }
+
