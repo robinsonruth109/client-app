@@ -79,6 +79,8 @@ type ClientForm = {
   dailyTaskLimit: number;
   todayTaskCount: number;
   workPhase: number;
+  password?: string;
+  withdrawalPassword?: string;
 };
 
 export default function ClientDetailPage() {
@@ -90,6 +92,7 @@ export default function ClientDetailPage() {
   const [savingClient, setSavingClient] = useState(false);
   const [savingTaskControls, setSavingTaskControls] = useState(false);
   const [togglingManualMode, setTogglingManualMode] = useState(false);
+  const [savingPasswords, setSavingPasswords] = useState(false);
 
   const [form, setForm] = useState<ClientForm>({
     balance: 0,
@@ -101,6 +104,8 @@ export default function ClientDetailPage() {
     dailyTaskLimit: 25,
     todayTaskCount: 0,
     workPhase: 1,
+    password: '',
+    withdrawalPassword: '',
   });
 
   const [manualMode, setManualMode] = useState(false);
@@ -125,6 +130,8 @@ export default function ClientDetailPage() {
         dailyTaskLimit: Number(data.dailyTaskLimit ?? 25),
         todayTaskCount: Number(data.todayTaskCount ?? 0),
         workPhase: Number(data.workPhase ?? 1),
+        password: '',
+        withdrawalPassword: '',
       });
     } catch (error: any) {
       console.error(error?.response?.data || error);
@@ -139,22 +146,22 @@ export default function ClientDetailPage() {
   }, [id]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const target = e.target as HTMLInputElement;
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+) => {
+  const target = e.target as HTMLInputElement;
 
-    setForm((prev) => ({
-      ...prev,
-      [target.name]:
-        target.type === 'checkbox'
-          ? target.checked
-          : target.type === 'number'
-            ? target.value === ''
-              ? 0
-              : Number(target.value)
-            : Number(target.value),
-    }));
-  };
+  setForm((prev) => ({
+    ...prev,
+    [target.name]:
+      target.type === 'checkbox'
+        ? target.checked
+        : target.type === 'number'
+          ? target.value === ''
+            ? 0
+            : Number(target.value)
+          : target.value,
+  }));
+};
 
   const buildClientPayload = () => {
     return {
@@ -184,6 +191,42 @@ export default function ClientDetailPage() {
       alert(error?.response?.data?.message || 'Failed to update client');
     } finally {
       setSavingClient(false);
+    }
+  };
+
+  const handleSavePasswords = async () => {
+    if (!form.password && !form.withdrawalPassword) {
+      alert('Please enter at least one password');
+      return;
+    }
+
+    try {
+      setSavingPasswords(true);
+
+      const payload: { password?: string; withdrawalPassword?: string } = {};
+
+      if (form.password && form.password.trim()) {
+        payload.password = form.password.trim();
+      }
+
+      if (form.withdrawalPassword && form.withdrawalPassword.trim()) {
+        payload.withdrawalPassword = form.withdrawalPassword.trim();
+      }
+
+      await api.patch(`/clients/${id}`, payload);
+
+      setForm((prev) => ({
+        ...prev,
+        password: '',
+        withdrawalPassword: '',
+      }));
+
+      alert('Passwords updated successfully');
+    } catch (error: any) {
+      console.error(error?.response?.data || error);
+      alert(error?.response?.data?.message || 'Failed to update passwords');
+    } finally {
+      setSavingPasswords(false);
     }
   };
 
@@ -233,7 +276,9 @@ export default function ClientDetailPage() {
       alert('Manual task setup saved successfully');
     } catch (error: any) {
       console.error(error?.response?.data || error);
-      alert(error?.response?.data?.message || 'Failed to save manual task setup');
+      alert(
+        error?.response?.data?.message || 'Failed to save manual task setup',
+      );
     } finally {
       setSavingTaskControls(false);
     }
@@ -255,7 +300,9 @@ export default function ClientDetailPage() {
       );
     } catch (error: any) {
       console.error(error?.response?.data || error);
-      alert(error?.response?.data?.message || 'Failed to toggle manual control');
+      alert(
+        error?.response?.data?.message || 'Failed to toggle manual control',
+      );
     } finally {
       setTogglingManualMode(false);
     }
@@ -442,6 +489,52 @@ export default function ClientDetailPage() {
               <strong>Manual Control Mode:</strong> {manualMode ? 'ON' : 'OFF'}
             </p>
           </div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl bg-white p-6 shadow">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+          Update Passwords
+        </h2>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              New Login Password
+            </label>
+            <input
+              type="text"
+              name="password"
+              value={form.password || ''}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-black"
+              placeholder="Enter new login password"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              New Withdrawal Password
+            </label>
+            <input
+              type="text"
+              name="withdrawalPassword"
+              value={form.withdrawalPassword || ''}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-black"
+              placeholder="Enter new withdrawal password"
+            />
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <button
+            onClick={handleSavePasswords}
+            disabled={savingPasswords}
+            className="rounded-xl bg-blue-600 px-6 py-3 text-white transition hover:bg-blue-700"
+          >
+            {savingPasswords ? 'Updating...' : 'Update Passwords'}
+          </button>
         </div>
       </div>
 
