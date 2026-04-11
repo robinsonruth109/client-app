@@ -9,7 +9,11 @@ export default function ServicePage() {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const res = await fetch('http://localhost:3001/settings/public');
+        // ✅ FIX: use production API
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/settings/public`,
+        );
+
         const data = await res.json();
         setTelegramLink(data.telegramGroupLink || '');
       } catch (error) {
@@ -21,12 +25,12 @@ export default function ServicePage() {
   }, []);
 
   const handleOpenTelegram = () => {
-    if (!telegramLink) {
-      alert('Online customer service is not available now');
-      return;
+    // ✅ Always try to open if link exists
+    if (telegramLink) {
+      window.open(telegramLink, '_blank');
+    } else {
+      alert('Customer service link not configured');
     }
-
-    window.open(telegramLink, '_blank');
   };
 
   const handleOpenHelp = () => {
@@ -40,8 +44,9 @@ export default function ServicePage() {
           Customer Service Center
         </h1>
 
+        {/* ✅ TEXT ONLY (NO TIME LOGIC) */}
         <p className="mt-3 text-[15px] text-[#6c5c63]">
-          Online customer service time 07:00-23:00（UK）
+          Online customer service available 24/7
         </p>
 
         <div className="mt-8 flex justify-center">
