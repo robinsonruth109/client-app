@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '@/lib/axios';
 
 type DashboardData = {
@@ -56,8 +56,13 @@ type WithdrawalItem = {
 
 export default function AdminDashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
-  const [pendingDepositsList, setPendingDepositsList] = useState<DepositItem[]>([]);
-  const [pendingWithdrawalsList, setPendingWithdrawalsList] = useState<WithdrawalItem[]>([]);
+  const [pendingDepositsList, setPendingDepositsList] = useState<DepositItem[]>(
+    [],
+  );
+  const [pendingWithdrawalsList, setPendingWithdrawalsList] = useState<
+    WithdrawalItem[]
+  >([]);
+  const [allDeposits, setAllDeposits] = useState<DepositItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(false);
@@ -77,22 +82,24 @@ export default function AdminDashboardPage() {
       ]);
 
       const dashboard = dashboardRes.data as DashboardData;
-      const deposits = (depositsRes.data as DepositItem[]).filter(
-        (item) => item.status === 'pending',
-      );
-      const withdrawals = (withdrawalsRes.data as WithdrawalItem[]).filter(
+      const deposits = depositsRes.data as DepositItem[];
+      const withdrawals = withdrawalsRes.data as WithdrawalItem[];
+
+      const pendingDeposits = deposits.filter((item) => item.status === 'pending');
+      const pendingWithdrawals = withdrawals.filter(
         (item) => item.status === 'pending' || item.status === 'approved',
       );
 
       setData(dashboard);
+      setAllDeposits(deposits);
       setPendingDepositsList(
-        deposits.sort(
+        pendingDeposits.sort(
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
         ),
       );
       setPendingWithdrawalsList(
-        withdrawals.sort(
+        pendingWithdrawals.sort(
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
         ),
@@ -118,6 +125,23 @@ export default function AdminDashboardPage() {
 
     return () => clearInterval(interval);
   }, [autoRefresh, fetchDashboard]);
+
+  const totalApprovedDepositAmount = useMemo(() => {
+    return Number(
+      allDeposits
+        .filter((item) => item.status === 'approved')
+        .reduce((sum, item) => {
+          const value =
+            item.confirmationAmount !== null &&
+            item.confirmationAmount !== undefined
+              ? Number(item.confirmationAmount)
+              : Number(item.amount);
+
+          return sum + (Number.isNaN(value) ? 0 : value);
+        }, 0)
+        .toFixed(2),
+    );
+  }, [allDeposits]);
 
   if (loading) {
     return <div className="text-gray-800">Loading dashboard...</div>;
@@ -168,7 +192,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-7">
         <SummaryCard
           title="Total Clients"
           value={data.totalClients}
@@ -198,6 +222,11 @@ export default function AdminDashboardPage() {
           title="Total Client Balance"
           value={data.totalClientBalance}
           subtitle="Combined balance"
+        />
+        <SummaryCard
+          title="Approved Deposit Amount"
+          value={totalApprovedDepositAmount}
+          subtitle="Total approved deposits"
         />
       </div>
 
